@@ -1,0 +1,25 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+# Edge case: multilingual document (common in international hospital groups)
+
+LABORATORY REPORT — EXTERNAL REFERRAL
+Referring hospital: International Clinic [Demo]
+Language: EN/ES
+
+Patient: Müller Schmidt, Hans (ID: EXT-00007)
+Date: 2026-03-09
+Requesting physician: Dr. Weber (External)
+
+RESULTADOS DE LABORATORIO
+
+BIOQUÍMICA
+- Glucosa: 102 mg/dL [REF: 70-110]
+- HbA1c: 6.1% [REF: <5.7] * LEVE ALTO *
+- Creatinina: 0.8 mg/dL [REF: 0.7-1.3]
+- TSH: 3.2 mUI/L [REF: 0.4-4.0]
+
+NOTA DEL LABORATORIO EXTERNO:
+Patient referred for follow-up of pre-diabetic state.
+Se recomienda control de HbA1c en 3 meses y derivación a
+Endocrinología si progresión.
+
+Validated by: Central Laboratory — International Clinic [Demo]

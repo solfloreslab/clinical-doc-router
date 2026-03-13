@@ -1,0 +1,23 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+# Reference codes: LOINC 2345-7 (Glucose), LOINC 2093-3 (Cholesterol), LOINC 718-7 (Hemoglobin)
+
+INFORME DE LABORATORIO
+Paciente: Navarro Blanco, Luis (ID: 00005)
+Fecha: 2026-03-10
+Médico solicitante: Dra. García Muñoz
+Servicio: Atención Primaria
+
+BIOQUÍMICA
+- Glucosa: 95 mg/dL [REF: 70-110]
+- Creatinina: 0.9 mg/dL [REF: 0.7-1.3]
+- Colesterol total: 210 mg/dL [REF: <200] * LEVE ALTO *
+- HDL: 55 mg/dL [REF: >40]
+- LDL: 130 mg/dL [REF: <130]
+- Triglicéridos: 125 mg/dL [REF: <150]
+
+HEMATOLOGÍA
+- Hemoglobina: 15.1 g/dL [REF: 13-17]
+- Leucocitos: 7.800 /μL [REF: 4.000-11.000]
+- Plaquetas: 220.000 /μL [REF: 150.000-400.000]
+
+Validado por: Laboratorio Central

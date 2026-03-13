@@ -1,0 +1,14 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+# Edge case: truncated/incomplete document (simulates scanner failure or transmission error)
+
+INFORME DE LABORATORIO
+Paciente: Delgado Ruiz, Carmen (ID: 00006)
+Fecha: 2026-03-12
+Médico solicitante: Dr. Vega Soto
+
+BIOQUÍMICA
+- Glucosa: 198 mg/dL [REF: 70-110] ** ALTO **
+- Creatinina: 2.4 mg/dL [REF: 0.7-1.3] ** ALTO **
+- Urea: 78 mg/
+
+[DOCUMENTO TRUNCADO — transmisión interrumpida]

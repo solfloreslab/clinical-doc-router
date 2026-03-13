@@ -1,0 +1,19 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+
+INFORME RADIOLÓGICO
+Paciente: Fernández Torres, Juan (ID: 00002)
+Fecha: 2026-03-11
+Médico solicitante: Dra. Sánchez Vega
+Servicio: Neumología
+Modalidad: Radiografía de tórax PA y lateral
+
+HALLAZGOS:
+Silueta cardiomediastínica dentro de límites normales.
+Campos pulmonares sin consolidaciones ni infiltrados.
+Senos costofrénicos libres.
+No se observan lesiones óseas.
+
+IMPRESIÓN DIAGNÓSTICA:
+Radiografía de tórax sin hallazgos patológicos significativos.
+
+Informado por: Dr. Rodríguez Pérez, Servicio de Radiología

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NotesExtraction",
+  "description": "Output schema for the clinical notes extractor prompt (discharge, consultation, interconsultation)",
+  "type": "object",
+  "required": ["patient", "document_type", "date", "service", "diagnoses", "data_quality"],
+  "properties": {
+    "patient": {
+      "type": "object",
+      "required": ["name", "id"],
+      "properties": {
+        "name": { "type": "string" },
+        "id": { "type": "string" }
+      }
+    },
+    "document_type": {
+      "type": "string",
+      "enum": ["discharge", "consultation", "interconsultation", "evolution"]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "service": { "type": "string" },
+    "attending_physician": { "type": ["string", "null"] },
+    "diagnoses": {
+      "type": "object",
+      "properties": {
+        "primary": { "type": ["string", "null"] },
+        "secondary": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "clinical_summary": { "type": ["string", "null"] },
+    "medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "dose"],
+        "properties": {
+          "name": { "type": "string" },
+          "dose": { "type": "string" },
+          "route": {
+            "type": "string",
+            "enum": ["oral", "IV", "IM", "SC", "topical", "inhaled", "other"]
+          },
+          "frequency": { "type": ["string", "null"] },
+          "duration": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "follow_up": {
+      "type": ["object", "null"],
+      "properties": {
+        "instructions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "appointments": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "warning_signs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "interconsultation": {
+      "type": ["object", "null"],
+      "properties": {
+        "from_service": { "type": ["string", "null"] },
+        "to_service": { "type": ["string", "null"] },
+        "reason": { "type": ["string", "null"] },
+        "clinical_question": { "type": ["string", "null"] }
+      }
+    },
+    "data_quality": {
+      "type": "string",
+      "enum": ["complete", "partial", "poor"]
+    }
+  }
+}

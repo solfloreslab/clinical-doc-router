@@ -1,0 +1,26 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+
+INFORME DE ALTA HOSPITALARIA
+Paciente: Moreno Díaz, Ana (ID: 00003)
+Fecha ingreso: 2026-03-05
+Fecha alta: 2026-03-11
+Servicio: Medicina Interna
+
+DIAGNÓSTICO PRINCIPAL:
+Neumonía adquirida en la comunidad, lóbulo inferior derecho
+
+DIAGNÓSTICOS SECUNDARIOS:
+- Diabetes mellitus tipo 2
+- Hipertensión arterial
+
+TRATAMIENTO AL ALTA:
+1. Amoxicilina/Ácido clavulánico 875/125 mg cada 8h x 5 días
+2. Paracetamol 1g cada 8h si fiebre
+3. Continuar medicación habitual (Metformina 850mg, Enalapril 20mg)
+
+SEGUIMIENTO:
+- Control por su MAP en 7 días
+- Radiografía de control en 4-6 semanas
+- Si empeoramiento (fiebre >38.5°C, disnea), acudir a urgencias
+
+Médico responsable: Dr. López Herrera

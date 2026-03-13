@@ -1,0 +1,22 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+# Reference codes: LOINC 2345-7 (Glucose), LOINC 2823-3 (Potassium), LOINC 2951-2 (Sodium)
+
+INFORME DE LABORATORIO
+Paciente: García López, María (ID: 00001)
+Fecha: 2026-03-12
+Médico solicitante: Dr. Martínez Ruiz
+Servicio: Medicina Interna
+
+BIOQUÍMICA
+- Glucosa: 412 mg/dL  [REF: 70-110]  *** VALOR CRÍTICO ***
+- Creatinina: 1.1 mg/dL [REF: 0.7-1.3]
+- Urea: 45 mg/dL [REF: 10-50]
+- Potasio: 5.8 mEq/L [REF: 3.5-5.0] ** ALTO **
+- Sodio: 138 mEq/L [REF: 136-145]
+
+HEMATOLOGÍA
+- Hemoglobina: 13.2 g/dL [REF: 12-16]
+- Leucocitos: 11.200 /μL [REF: 4.000-11.000] * LEVE ALTO *
+- Plaquetas: 245.000 /μL [REF: 150.000-400.000]
+
+Validado por: Laboratorio Central

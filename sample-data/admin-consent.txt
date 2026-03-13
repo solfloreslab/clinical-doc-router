@@ -1,0 +1,24 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+
+DOCUMENTO DE CONSENTIMIENTO INFORMADO
+
+Paciente: Ruiz Gómez, Pedro (ID: 00004)
+Fecha: 2026-03-12
+Centro: Hospital Universitario [Demo]
+
+Yo, D./Dña. Pedro Ruiz Gómez, con DNI XXXXXXXX-X,
+declaro que he sido informado/a por el Dr./Dra. ____________
+sobre el procedimiento de __________________ que se me va a realizar.
+
+He comprendido la información recibida y he podido formular
+todas las preguntas que he considerado oportunas.
+
+He sido informado/a de los riesgos generales y específicos del
+procedimiento, así como de las alternativas terapéuticas disponibles.
+
+En consecuencia, doy mi consentimiento para la realización del
+procedimiento propuesto.
+
+Firma del paciente: _______________
+Firma del médico: _______________
+Fecha y hora: _______________

@@ -1,0 +1,61 @@
+{
+  "status": "success",
+  "classification": {
+    "category": "clinical_note",
+    "urgency": 2,
+    "summary": "Discharge note for patient Moreno Díaz, Ana — pneumonia treated, discharged with antibiotics and follow-up instructions",
+    "language": "es",
+    "completeness": "complete"
+  },
+  "extracted_data": {
+    "patient": {
+      "name": "Moreno Díaz, Ana",
+      "id": "00003"
+    },
+    "document_type": "discharge",
+    "date": "2026-03-11",
+    "service": "Medicina Interna",
+    "attending_physician": "Dr. López Herrera",
+    "diagnoses": {
+      "primary": "Neumonía adquirida en la comunidad, lóbulo inferior derecho",
+      "secondary": [
+        "Diabetes mellitus tipo 2",
+        "Hipertensión arterial"
+      ]
+    },
+    "clinical_summary": "Patient admitted 2026-03-05 for community-acquired pneumonia, right lower lobe. Treated with IV antibiotics, transitioned to oral. Discharged with improvement after 6-day stay.",
+    "medications": [
+      { "name": "Amoxicilina/Ácido clavulánico", "dose": "875/125 mg", "route": "oral", "frequency": "cada 8h", "duration": "5 días" },
+      { "name": "Paracetamol", "dose": "1g", "route": "oral", "frequency": "cada 8h si fiebre", "duration": "as needed" },
+      { "name": "Metformina", "dose": "850mg", "route": "oral", "frequency": "habitual", "duration": "ongoing" },
+      { "name": "Enalapril", "dose": "20mg", "route": "oral", "frequency": "habitual", "duration": "ongoing" }
+    ],
+    "follow_up": {
+      "instructions": [
+        "Control por su MAP en 7 días",
+        "Radiografía de control en 4-6 semanas"
+      ],
+      "appointments": [
+        "MAP (Médico de Atención Primaria) — 7 días post-alta",
+        "Radiología — 4-6 semanas post-alta"
+      ],
+      "warning_signs": [
+        "Fiebre >38.5°C",
+        "Disnea (dificultad respiratoria)",
+        "Si empeoramiento, acudir a urgencias"
+      ]
+    },
+    "interconsultation": null,
+    "data_quality": "complete"
+  },
+  "patient_friendly_summary": null,
+  "alerts": [],
+  "metadata": {
+    "processed_at": "2026-03-11T16:30:22.123Z",
+    "received_at": "2026-03-11T16:30:18.456Z",
+    "source": "ehr_system",
+    "model": "qwen3:14b",
+    "prompt_version": "v1.0",
+    "workflow_version": "1.0.0"
+  }
+}

@@ -1,0 +1,19 @@
+# SYNTHETIC DATA — No real patient information. All names, IDs, and values are fictitious.
+
+INTERCONSULTA
+De: Medicina Interna (Dr. López Herrera)
+Para: Cardiología
+Paciente: Moreno Díaz, Ana (ID: 00003)
+Fecha: 2026-03-08
+
+MOTIVO DE CONSULTA:
+Paciente de 67 años ingresada por neumonía que presenta episodios
+de taquicardia sinusal (FC 110-120 lpm) y elevación leve de
+troponina I (0.08 ng/mL, ref <0.04).
+
+ANTECEDENTES: HTA, DM2, sin cardiopatía conocida.
+
+SOLICITUD: Valoración cardiológica y ECG. ¿Indicación de
+ecocardiograma?
+
+Gracias.

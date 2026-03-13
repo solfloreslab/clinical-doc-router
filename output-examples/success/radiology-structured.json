@@ -1,0 +1,45 @@
+{
+  "status": "success",
+  "classification": {
+    "category": "radiology",
+    "urgency": 2,
+    "summary": "Normal chest X-ray (PA and lateral) for patient Fernández Torres, Juan — no pathological findings",
+    "language": "es",
+    "completeness": "complete"
+  },
+  "extracted_data": {
+    "patient": {
+      "name": "Fernández Torres, Juan",
+      "id": "00002"
+    },
+    "date": "2026-03-11",
+    "ordering_physician": "Dra. Sánchez Vega",
+    "service": "Neumología",
+    "study": {
+      "modality": "XR",
+      "modality_description": "Radiografía de tórax PA y lateral",
+      "body_region": "Tórax",
+      "technique": "PA y lateral"
+    },
+    "findings": [
+      { "structure": "Silueta cardiomediastínica", "observation": "Dentro de límites normales", "significance": "normal" },
+      { "structure": "Campos pulmonares", "observation": "Sin consolidaciones ni infiltrados", "significance": "normal" },
+      { "structure": "Senos costofrénicos", "observation": "Libres", "significance": "normal" },
+      { "structure": "Estructuras óseas", "observation": "No se observan lesiones óseas", "significance": "normal" }
+    ],
+    "impression": "Radiografía de tórax sin hallazgos patológicos significativos",
+    "recommendation": null,
+    "reporting_physician": "Dr. Rodríguez Pérez",
+    "data_quality": "complete"
+  },
+  "patient_friendly_summary": null,
+  "alerts": [],
+  "metadata": {
+    "processed_at": "2026-03-11T09:45:12.456Z",
+    "received_at": "2026-03-11T09:45:08.789Z",
+    "source": "radiology_system",
+    "model": "qwen3:14b",
+    "prompt_version": "v1.0",
+    "workflow_version": "1.0.0"
+  }
+}

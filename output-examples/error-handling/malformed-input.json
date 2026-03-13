@@ -1,0 +1,36 @@
+{
+  "status": "partial",
+  "classification": {
+    "category": "laboratory",
+    "urgency": 3,
+    "summary": "Truncated laboratory report for patient Delgado Ruiz, Carmen — elevated glucose and creatinine values, document incomplete",
+    "language": "es",
+    "completeness": "incomplete"
+  },
+  "extracted_data": {
+    "patient": {
+      "name": "Delgado Ruiz, Carmen",
+      "id": "00006"
+    },
+    "date": "2026-03-12",
+    "ordering_physician": "Dr. Vega Soto",
+    "service": "unknown",
+    "tests": [
+      { "name": "Glucosa", "value": 198, "unit": "mg/dL", "reference_low": 70, "reference_high": 110, "flag": "high" },
+      { "name": "Creatinina", "value": 2.4, "unit": "mg/dL", "reference_low": 0.7, "reference_high": 1.3, "flag": "high" },
+      { "name": "Urea", "value": null, "unit": "mg/dL", "reference_low": null, "reference_high": null, "flag": "normal", "qualitative_result": "Value truncated — incomplete document" }
+    ],
+    "critical_values": [],
+    "data_quality": "partial"
+  },
+  "patient_friendly_summary": null,
+  "alerts": [],
+  "metadata": {
+    "processed_at": "2026-03-12T11:05:33.789Z",
+    "received_at": "2026-03-12T11:05:30.123Z",
+    "source": "scanner",
+    "model": "qwen3:14b",
+    "prompt_version": "v1.0",
+    "workflow_version": "1.0.0"
+  }
+}

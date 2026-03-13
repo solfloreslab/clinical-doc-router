@@ -1,0 +1,308 @@
+{
+  "name": "Clinical Document Router v1.0",
+  "nodes": [
+    {
+      "id": "node-webhook",
+      "name": "Document Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "classify-document",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "node-validate",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst item = items[0];\nconst documentText = item.json.body?.document_text || item.json.document_text || '';\nconst source = item.json.body?.source || item.json.source || 'unknown';\n\nif (!documentText || documentText.trim().length === 0) {\n  return [{\n    json: {\n      error: true,\n      message: 'document_text is required and cannot be empty',\n      received_at: new Date().toISOString()\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    document_text: documentText.trim(),\n    source: source,\n    received_at: new Date().toISOString(),\n    document_length: documentText.trim().length\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-classifier",
+      "name": "Classify Document",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [480, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.document_text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a clinical document classifier for a hospital information system.\n\nAnalyze the following document and respond ONLY with a JSON object (no markdown, no explanation) containing:\n\n1. \"category\": one of [\"laboratory\", \"radiology\", \"clinical_note\", \"prescription\", \"administrative\", \"interconsultation\"]\n2. \"summary\": one-sentence description of the document content\n3. \"critical_flags\": array of any critical values or urgent findings detected (empty array if none)\n4. \"language\": primary language of the document (\"es\", \"en\", or \"mixed\")\n5. \"completeness\": \"complete\" if the document appears whole, \"incomplete\" if it appears truncated or malformed\n\nRules:\n- If the document does not clearly fit any category, use \"administrative\" as the default.\n- If the document appears truncated or incomplete, still classify it but set completeness to \"incomplete\".\n- Do not invent or infer information not present in the document.\n- Respond ONLY with the JSON object.",
+              "type": "SystemMessage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-ollama-classifier",
+      "name": "Ollama Classifier",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [500, 520],
+      "parameters": {
+        "model": "qwen3:14b",
+        "options": {
+          "temperature": 0
+        }
+      }
+    },
+    {
+      "id": "node-parse-urgency",
+      "name": "Parse Classification & Urgency",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300],
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst llmOutput = item.json.text || item.json.output || '';\nconst inputData = $('Validate Input').first().json;\n\n// Parse LLM JSON output\nlet classification;\ntry {\n  const jsonMatch = llmOutput.match(/\\{[\\s\\S]*\\}/);\n  classification = JSON.parse(jsonMatch ? jsonMatch[0] : llmOutput);\n} catch (e) {\n  classification = {\n    category: 'administrative',\n    summary: 'Classification failed - defaulting to administrative',\n    critical_flags: [],\n    language: 'es',\n    completeness: 'incomplete'\n  };\n}\n\n// ============================================\n// RULES-BASED URGENCY ENGINE (not LLM-dependent)\n// Deterministic rules are auditable and predictable.\n// The LLM classifies; rules evaluate urgency.\n// ============================================\nlet urgency = 1;\nconst text = inputData.document_text.toLowerCase();\nconst cat = classification.category;\n\n// Critical value patterns (regex)\nif (/valor cr[i\\u00ed]tico|\\*\\*\\* .* \\*\\*\\*|critical/i.test(text)) {\n  urgency = 5;\n} else if (cat === 'laboratory' && /\\*\\* alto \\*\\*|\\*\\* bajo \\*\\*/i.test(text)) {\n  urgency = 3;\n} else if (cat === 'radiology') {\n  urgency = 2;\n} else if (cat === 'clinical_note' || cat === 'interconsultation') {\n  urgency = 2;\n}\n\n// Override: non-empty critical_flags means minimum urgency 4\nif (classification.critical_flags && classification.critical_flags.length > 0) {\n  urgency = Math.max(urgency, 4);\n}\n\nreturn [{\n  json: {\n    category: classification.category || 'administrative',\n    urgency,\n    summary: classification.summary || '',\n    critical_flags: classification.critical_flags || [],\n    language: classification.language || 'es',\n    completeness: classification.completeness || 'complete',\n    document_text: inputData.document_text,\n    source: inputData.source,\n    received_at: inputData.received_at\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-router",
+      "name": "Route by Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [960, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "laboratory",
+              "conditions": {
+                "options": { "version": 2, "caseSensitive": true, "typeValidation": "strict" },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": { "type": "string", "operation": "equals" },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "laboratory"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "radiology",
+              "conditions": {
+                "options": { "version": 2, "caseSensitive": true, "typeValidation": "strict" },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": { "type": "string", "operation": "equals" },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "radiology"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "clinical_note",
+              "conditions": {
+                "options": { "version": 2, "caseSensitive": true, "typeValidation": "strict" },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": { "type": "string", "operation": "contains" },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "clinical_note,interconsultation"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "node-lab-chain",
+      "name": "Extract Lab Data",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [1220, 60],
+      "continueOnFail": true,
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.document_text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a clinical data extraction system for laboratory reports.\n\nExtract structured data and respond ONLY with a JSON object (no markdown, no explanation):\n\n{\n  \"patient\": { \"name\": \"Last, First\", \"id\": \"ID or unknown\" },\n  \"date\": \"YYYY-MM-DD\",\n  \"ordering_physician\": \"name with title\",\n  \"service\": \"department or unknown\",\n  \"tests\": [\n    { \"name\": \"test\", \"value\": number_or_null, \"unit\": \"unit\", \"reference_low\": number_or_null, \"reference_high\": number_or_null, \"flag\": \"normal|low|high|critical_low|critical_high\" }\n  ],\n  \"critical_values\": [\n    { \"test\": \"name\", \"value\": number, \"unit\": \"unit\", \"reference_range\": \"low-high\", \"deviation\": \"description\" }\n  ],\n  \"data_quality\": \"complete|partial|poor\"\n}\n\nRules:\n- Extract ALL test results, not just abnormal ones.\n- Flag: within range=normal, slightly outside=low/high, dangerously outside or marked CRITICO=critical_low/critical_high.\n- If document is truncated, set data_quality to partial and extract what is available.\n- Respond ONLY with JSON.",
+              "type": "SystemMessage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-ollama-lab",
+      "name": "Ollama Lab Extractor",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [1240, 280],
+      "parameters": {
+        "model": "qwen3:14b",
+        "options": { "temperature": 0 }
+      }
+    },
+    {
+      "id": "node-radio-chain",
+      "name": "Extract Radiology Data",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [1220, 420],
+      "continueOnFail": true,
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.document_text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a clinical data extraction system for radiology reports.\n\nExtract structured data and respond ONLY with a JSON object (no markdown, no explanation):\n\n{\n  \"patient\": { \"name\": \"Last, First\", \"id\": \"ID or unknown\" },\n  \"date\": \"YYYY-MM-DD\",\n  \"ordering_physician\": \"name\",\n  \"service\": \"department\",\n  \"study\": {\n    \"modality\": \"XR|CT|MRI|US|NM|other\",\n    \"modality_description\": \"as written\",\n    \"body_region\": \"region\",\n    \"technique\": \"details or null\"\n  },\n  \"findings\": [\n    { \"structure\": \"anatomical structure\", \"observation\": \"finding\", \"significance\": \"normal|abnormal|incidental\" }\n  ],\n  \"impression\": \"diagnostic impression as written\",\n  \"recommendation\": \"follow-up or null\",\n  \"reporting_physician\": \"name\",\n  \"data_quality\": \"complete|partial|poor\"\n}\n\nRules:\n- Map modality: XR=X-ray/Radiografia, CT=TAC, MRI=RM, US=Ecografia.\n- Each distinct finding is a separate entry.\n- Preserve the diagnostic impression exactly as written.\n- Respond ONLY with JSON.",
+              "type": "SystemMessage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-ollama-radio",
+      "name": "Ollama Radiology Extractor",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [1240, 640],
+      "parameters": {
+        "model": "qwen3:14b",
+        "options": { "temperature": 0 }
+      }
+    },
+    {
+      "id": "node-notes-chain",
+      "name": "Extract Clinical Notes",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [1220, 780],
+      "continueOnFail": true,
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.document_text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a clinical data extraction system for hospital notes (discharge summaries, consultations, interconsultations).\n\nExtract structured data and respond ONLY with a JSON object (no markdown, no explanation):\n\n{\n  \"patient\": { \"name\": \"Last, First\", \"id\": \"ID or unknown\" },\n  \"document_type\": \"discharge|consultation|interconsultation|evolution\",\n  \"date\": \"YYYY-MM-DD\",\n  \"service\": \"department\",\n  \"attending_physician\": \"name\",\n  \"diagnoses\": { \"primary\": \"main diagnosis\", \"secondary\": [\"list\"] },\n  \"clinical_summary\": \"brief summary\",\n  \"medications\": [\n    { \"name\": \"drug\", \"dose\": \"EXACT as written\", \"route\": \"oral|IV|IM|SC|topical|inhaled|other\", \"frequency\": \"freq\", \"duration\": \"duration or ongoing\" }\n  ],\n  \"follow_up\": {\n    \"instructions\": [\"list\"],\n    \"appointments\": [\"list\"],\n    \"warning_signs\": [\"list\"]\n  },\n  \"interconsultation\": {\n    \"from_service\": \"or null\",\n    \"to_service\": \"or null\",\n    \"reason\": \"or null\",\n    \"clinical_question\": \"or null\"\n  },\n  \"data_quality\": \"complete|partial|poor\"\n}\n\nRules:\n- Medication dosages MUST be extracted EXACTLY as written — never round or modify.\n- For interconsultations, fill the interconsultation fields; for discharges, set them to null.\n- Respond ONLY with JSON.",
+              "type": "SystemMessage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-ollama-notes",
+      "name": "Ollama Notes Extractor",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [1240, 1000],
+      "parameters": {
+        "model": "qwen3:14b",
+        "options": { "temperature": 0 }
+      }
+    },
+    {
+      "id": "node-admin-log",
+      "name": "Administrative Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1220, 1140],
+      "parameters": {
+        "jsCode": "const item = $input.first();\nreturn [{\n  json: {\n    text: JSON.stringify({\n      document_type: 'administrative',\n      note: 'No AI extraction needed for administrative documents',\n      category_detected: item.json.category,\n      summary: item.json.summary\n    }),\n    category: item.json.category,\n    urgency: item.json.urgency,\n    summary: item.json.summary,\n    source: item.json.source,\n    received_at: item.json.received_at\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-assemble",
+      "name": "Assemble Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 300],
+      "parameters": {
+        "jsCode": "const item = $input.first();\n\n// Get classification from upstream\nlet classification;\ntry {\n  classification = $('Parse Classification & Urgency').first().json;\n} catch(e) {\n  classification = item.json;\n}\n\n// Parse extraction result\nlet extractedData = {};\nconst llmOutput = item.json.text || item.json.output || '';\n\nif (llmOutput) {\n  try {\n    const jsonMatch = llmOutput.match(/\\{[\\s\\S]*\\}/);\n    extractedData = JSON.parse(jsonMatch ? jsonMatch[0] : llmOutput);\n  } catch(e) {\n    extractedData = { raw_output: llmOutput, parse_error: true };\n  }\n}\n\n// Build alerts for critical values\nconst alerts = [];\nif (classification.urgency >= 4) {\n  for (const flag of (classification.critical_flags || [])) {\n    alerts.push({\n      type: 'critical_value',\n      message: flag,\n      action: 'Notify ordering physician immediately',\n      priority: 'URGENT'\n    });\n  }\n  if (alerts.length === 0 && classification.urgency >= 4) {\n    alerts.push({\n      type: 'high_urgency',\n      message: 'Document flagged with high urgency by rules engine',\n      action: 'Review promptly',\n      priority: 'HIGH'\n    });\n  }\n}\n\n// Determine status\nlet status = 'success';\nif (classification.completeness === 'incomplete') status = 'partial';\nif (extractedData.parse_error) status = 'error';\n\nreturn [{\n  json: {\n    status,\n    classification: {\n      category: classification.category,\n      urgency: classification.urgency,\n      summary: classification.summary,\n      language: classification.language || 'es',\n      completeness: classification.completeness || 'complete'\n    },\n    extracted_data: extractedData,\n    patient_friendly_summary: null,\n    alerts,\n    metadata: {\n      processed_at: new Date().toISOString(),\n      received_at: classification.received_at,\n      source: classification.source,\n      model: 'qwen3:14b',\n      prompt_version: 'v1.0',\n      workflow_version: '1.0.0'\n    }\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-respond",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [1740, 300],
+      "parameters": {
+        "respondWith": "firstIncomingItem"
+      }
+    }
+  ],
+  "connections": {
+    "Document Intake": {
+      "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]]
+    },
+    "Validate Input": {
+      "main": [[{ "node": "Classify Document", "type": "main", "index": 0 }]]
+    },
+    "Ollama Classifier": {
+      "ai_languageModel": [[{ "node": "Classify Document", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Classify Document": {
+      "main": [[{ "node": "Parse Classification & Urgency", "type": "main", "index": 0 }]]
+    },
+    "Parse Classification & Urgency": {
+      "main": [[{ "node": "Route by Category", "type": "main", "index": 0 }]]
+    },
+    "Route by Category": {
+      "main": [
+        [{ "node": "Extract Lab Data", "type": "main", "index": 0 }],
+        [{ "node": "Extract Radiology Data", "type": "main", "index": 0 }],
+        [{ "node": "Extract Clinical Notes", "type": "main", "index": 0 }],
+        [{ "node": "Administrative Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ollama Lab Extractor": {
+      "ai_languageModel": [[{ "node": "Extract Lab Data", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Ollama Radiology Extractor": {
+      "ai_languageModel": [[{ "node": "Extract Radiology Data", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Ollama Notes Extractor": {
+      "ai_languageModel": [[{ "node": "Extract Clinical Notes", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Extract Lab Data": {
+      "main": [[{ "node": "Assemble Response", "type": "main", "index": 0 }]]
+    },
+    "Extract Radiology Data": {
+      "main": [[{ "node": "Assemble Response", "type": "main", "index": 0 }]]
+    },
+    "Extract Clinical Notes": {
+      "main": [[{ "node": "Assemble Response", "type": "main", "index": 0 }]]
+    },
+    "Administrative Log": {
+      "main": [[{ "node": "Assemble Response", "type": "main", "index": 0 }]]
+    },
+    "Assemble Response": {
+      "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  }
+}

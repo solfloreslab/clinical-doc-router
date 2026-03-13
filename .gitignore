@@ -1,0 +1,43 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+*.log
+
+# Prevent accidental commit of real clinical data
+*.hl7
+*.ccda
+*.dcm
+*.dicom
+real-data/
+private/
+confidential/
+
+# n8n credentials (never commit)
+n8n-creds/
+*.n8n-credentials
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# Claude Code settings (internal)
+.claude/
+
+# Plan file (internal, not for repo)
+plan-workflow-clinical-doc-router.md
