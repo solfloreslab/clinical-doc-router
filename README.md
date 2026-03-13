@@ -30,18 +30,21 @@ This n8n workflow automates the document pipeline:
 ```mermaid
 graph LR
     A[Document<br/>Sources] -->|POST| B[Webhook]
-    B --> C[LLM<br/>Classifier]
+    B --> B2[Build<br/>Prompt]
+    B2 --> C[LLM<br/>Classifier]
     C --> D[Urgency<br/>Engine]
     D --> E{Router}
-    E -->|Lab| F[Lab<br/>Extractor]
-    E -->|Radiology| G[Radiology<br/>Extractor]
-    E -->|Clinical Note| H[Notes<br/>Extractor]
+    E -->|Lab| F1[Build] --> F[Lab<br/>Extractor]
+    E -->|Radiology| G1[Build] --> G[Radiology<br/>Extractor]
+    E -->|Clinical Note| H1[Build] --> H[Notes<br/>Extractor]
     E -->|Admin| I[Log]
     F --> J[Structured<br/>JSON Response]
     G --> J
     H --> J
     I --> J
 ```
+
+![n8n workflow canvas](docs/images/workflow-screenshot.png)
 
 ## Document Categories
 
@@ -63,6 +66,10 @@ Critical value detection uses **deterministic regex rules**, not LLM inference. 
 ### Versioned Prompts
 
 All LLM prompts are documented with version numbers, input/output schemas, edge case handling, and changelogs. See [Prompt Design Rationale](prompts/PROMPT_DESIGN.md).
+
+### Prompt Construction Pattern
+
+Each LLM chain uses a dedicated Code node that builds the full prompt via JavaScript template literals before passing it to the LangChain node. This ensures reliable variable interpolation regardless of n8n expression evaluation context. See [Architecture — Build Prompt Nodes](docs/architecture.md#6-build-prompt-nodes-code-nodes--prompt-construction).
 
 ### Structured Output Validation
 
@@ -98,7 +105,9 @@ Extraction outputs conform to JSON schemas defined in `schemas/`. This ensures d
 1. Import `workflow/clinical-doc-router.json` into your n8n instance
 2. Configure Ollama credentials in n8n (Settings → Credentials → Ollama API)
    - **Base URL:** `http://your-ollama-host:11434`
-3. Activate the workflow
+   - n8n will prompt you to map credentials to the 4 Ollama nodes on import
+3. Verify `qwen3:14b` is available: `ollama list` should show the model
+4. Activate the workflow
 
 ### Test
 
@@ -120,7 +129,7 @@ clinical-doc-router/
 ├── LICENSE                      # MIT
 ├── DISCLAIMER.md                # Clinical safety disclaimer
 ├── workflow/
-│   └── clinical-doc-router.json # n8n workflow (15 nodes)
+│   └── clinical-doc-router.json # n8n workflow (19 nodes)
 ├── sample-data/                 # 8 synthetic clinical documents
 ├── prompts/
 │   ├── v1/                      # Versioned prompt files (5)

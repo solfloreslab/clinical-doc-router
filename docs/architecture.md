@@ -8,13 +8,17 @@ The Clinical Document Router is a webhook-based microservice that receives unstr
 graph LR
     A[Document Sources] -->|POST /classify-document| B[Webhook Intake]
     B --> C[Input Validation]
-    C --> D[LLM Classifier]
+    C --> C2[Build Classifier<br/>Prompt]
+    C2 --> D[LLM Classifier]
     D --> E[Urgency Engine<br/>Rules-based]
     E --> F{Route by<br/>Category}
-    F -->|laboratory| G[Lab Extractor]
-    F -->|radiology| H[Radiology Extractor]
-    F -->|clinical_note<br/>interconsultation| I[Notes Extractor]
+    F -->|laboratory| G1[Build Lab<br/>Prompt]
+    F -->|radiology| H1[Build Radiology<br/>Prompt]
+    F -->|clinical_note<br/>interconsultation| I1[Build Notes<br/>Prompt]
     F -->|administrative<br/>other| J[Admin Log]
+    G1 --> G[Lab Extractor]
+    H1 --> H[Radiology Extractor]
+    I1 --> I[Notes Extractor]
     G --> K[Response Assembly]
     H --> K
     I --> K
@@ -71,7 +75,21 @@ Routes documents to specialized extraction pipelines:
 | 2 | `clinical_note`, `interconsultation` | Clinical notes extraction (diagnoses, medications, follow-up) |
 | 3 (fallback) | `administrative`, `prescription`, other | Simple metadata logging, no LLM |
 
-### 6. Specialized Extractors (LangChain Basic LLM Chains)
+### 6. Build Prompt Nodes (Code Nodes — Prompt Construction)
+
+Each LLM chain is preceded by a dedicated **Build Prompt** Code node that constructs the full prompt text using JavaScript template literals.
+
+```
+Route by Category → Build Lab Prompt → Extract Lab Data
+                  → Build Radiology Prompt → Extract Radiology Data
+                  → Build Notes Prompt → Extract Clinical Notes
+```
+
+**Why this pattern?** n8n's LangChain `chainLlm` nodes use expression evaluation for their `text` parameter. In practice, inline expressions like `{{ $json.document_text }}` embedded within longer prompt text do not reliably evaluate — the LLM receives the literal placeholder instead of the actual document content. The Build Prompt pattern solves this: a Code node constructs the complete prompt via JavaScript string interpolation (`${variable}`), stores it as `full_prompt`, and the chainLlm node reads it with the pure expression `={{ $json.full_prompt }}`, which evaluates correctly.
+
+This pattern also provides a clean separation of concerns: prompt engineering logic lives in the Code nodes where it can use full JavaScript capabilities (conditionals, formatting, dynamic sections), while the chainLlm nodes handle only LLM communication.
+
+### 7. Specialized Extractors (LangChain Basic LLM Chains)
 
 Each extractor uses a domain-specific prompt optimized for its document type:
 
@@ -82,10 +100,11 @@ Each extractor uses a domain-specific prompt optimized for its document type:
 All extractors:
 - Use `qwen3:14b` at temperature 0 (deterministic extraction)
 - Have `continueOnFail: true` (graceful degradation)
+- Receive their prompt via `={{ $json.full_prompt }}` from the Build Prompt nodes
 - Output validated against JSON schemas in `schemas/`
 - Report `data_quality` field for incomplete extractions
 
-### 7. Response Assembly (Code Node)
+### 8. Response Assembly (Code Node)
 
 Consolidates extraction results into a standardized output format:
 
