@@ -2,7 +2,13 @@
 
 > **This document analyzes the regulatory landscape that would apply if a system like the Clinical Document Router were deployed in a clinical setting within the European Union. This project is a demonstration only — it has not undergone any regulatory assessment.**
 
+> *Regulatory landscape as of March 2026. References to the Digital Omnibus and MDR/IVDR simplification package describe legislative proposals currently under review in the EU legislative process and are not yet binding law.*
+
 ## 1. EU Artificial Intelligence Act (Regulation 2024/1689)
+
+### Application Timeline
+
+Under the law currently in force, the general application date remains **2 August 2026**, with Article 6(1)/Annex I obligations applying from **2 August 2027**. A Commission proposal published on 19 November 2025 (Digital Omnibus on AI, COM(2025) 836) would postpone certain high-risk obligations, but that proposal has not yet been adopted.
 
 ### Risk Classification
 
@@ -67,6 +73,10 @@ The critical value alert feature of this workflow would likely qualify under thi
 ### Classification
 
 If classified as a medical device, a clinical document router would likely be **Class IIa** under MDR Rule 11 (software intended to provide information used for diagnostic or therapeutic decisions).
+
+### Proposed Changes to MDR/AI Act Interface
+
+On 16 December 2025, the Commission proposed amendments affecting the interface between MDR/IVDR and the AI Act (COM(2025) 1023), including moving MDR/IVDR references in Annex I of the AI Act from Section A to Section B. As of March 2026, this remains a proposal under the ordinary legislative procedure and its final legal effect is not yet settled.
 
 ### This Demo's Position
 
@@ -159,3 +169,20 @@ This workflow is designed as a **decision support tool**, not an autonomous deci
 ---
 
 *This regulatory analysis is provided for educational and portfolio purposes. It does not constitute legal advice. Any production deployment of AI systems in healthcare settings must involve qualified regulatory, legal, and clinical safety professionals.*
+
+## References
+
+1. European Commission. *AI Act enters into force*. 1 August 2024.
+   https://commission.europa.eu/news/ai-act-enters-force-2024-08-01_en
+
+2. European Commission. *Proposal for a Regulation amending Regulation (EU) 2024/1689 as regards simplification measures for SMEs and support for compliance with certain requirements (Digital Omnibus on AI).* COM(2025) 836 final.
+   https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex:52025PC0836
+
+3. European Parliamentary Research Service (EPRS). *Digital Omnibus on AI.* Briefing 2026.
+   https://www.europarl.europa.eu/thinktank/en/document/EPRS_BRI(2026)782651
+
+4. European Commission, DG SANTE. *Proposal for a regulation to simplify rules on medical and in vitro diagnostic devices.* 16 December 2025.
+   https://health.ec.europa.eu/publications/proposal-regulation-simplify-rules-medical-and-vitro-diagnostic-devices_en
+
+5. European Commission. *Proposal for a Regulation amending Regulations (EU) 2017/745, (EU) 2017/746 and (EU) 2024/1689.* COM(2025) 1023 final.
+   https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:52025PC1023
