@@ -162,6 +162,10 @@ See [docs/use-cases.md](docs/use-cases.md) for detailed deployment scenarios:
 - Document flow analytics for hospital management
 - Patient-friendly clinical summaries
 
+## Acknowledgments
+
+Developed with assistance from Claude Code (Anthropic).
+
 ## License
 
 [MIT](LICENSE)
